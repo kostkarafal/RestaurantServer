@@ -1,8 +1,6 @@
 package pl.kostka.restaurant.model;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pl.kostka.restaurant.model.enums.ProductType;
-
 import javax.persistence.*;
 
 @Entity
