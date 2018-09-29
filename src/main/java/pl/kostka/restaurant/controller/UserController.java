@@ -2,37 +2,52 @@ package pl.kostka.restaurant.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.model.User;
 import pl.kostka.restaurant.repository.UserRepository;
 
+import javax.validation.Valid;
 import java.util.List;
 
-@RestController("/user")
+@RestController
 public class UserController {
 
-    @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
-    @GetMapping("/hello")
-    public String hello()
-    {
-        return "hello";
+    @Autowired
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    @GetMapping
+    @GetMapping("/users")
     public List<User> getUser() {
         return userRepository.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/users")
     public User addUser(@RequestBody User user) {
         return userRepository.save(user);
     }
 
+    @PutMapping("/users/{userId}")
+    public User updateUser(@PathVariable Long userId, @Valid @RequestBody User userRequest) {
+        return userRepository.findById(userId).map(user -> {
+            user.setName(userRequest.getName());
+            user.setSurname(userRequest.getSurname());
+            user.setPhoneNumber(userRequest.getPhoneNumber());
+            return userRepository.save(user);
+        }).orElseThrow(() -> new ResourceNotFoundException("UserId "+ userId + " not found"));
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<?> deletePost(@PathVariable Long userId) {
+        return userRepository.findById(userId).map(user -> {
+            userRepository.delete(user);
+            return ResponseEntity.ok().build();
+        }).orElseThrow(() -> new ResourceNotFoundException("UserId "+ userId + " not found"));
+    }
 
 
 }
