@@ -1,6 +1,7 @@
 package pl.kostka.restaurant.controller;
 
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,15 @@ public class UserController {
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user) {
+        String hash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        user.setPassword(hash);
         return userRepository.save(user);
+    }
+
+    @PostMapping("users/login")
+    public boolean checkUser(@RequestBody User user) {
+        User userDb = userRepository.findByLogin(user.getLogin());
+        return BCrypt.checkpw(user.getPassword(), userDb.getPassword());
     }
 
     @PutMapping("/users/{userId}")
@@ -42,7 +51,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<?> deletePost(@PathVariable Long userId) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         return userRepository.findById(userId).map(user -> {
             userRepository.delete(user);
             return ResponseEntity.ok().build();

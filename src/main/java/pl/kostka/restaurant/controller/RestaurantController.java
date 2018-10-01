@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.model.Restaurant;
-import pl.kostka.restaurant.model.User;
 import pl.kostka.restaurant.repository.RestaurantRepository;
 
 import javax.validation.Valid;
