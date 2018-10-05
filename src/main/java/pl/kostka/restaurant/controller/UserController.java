@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("users/login")
     public boolean checkUser(@RequestBody User user) {
         User userDb = userRepository.findByLogin(user.getLogin());
-        return BCrypt.checkpw(user.getPassword(), userDb.getPassword());
+        return userDb != null && BCrypt.checkpw(user.getPassword(), userDb.getPassword());
     }
 
     @PutMapping("/users/{userId}")

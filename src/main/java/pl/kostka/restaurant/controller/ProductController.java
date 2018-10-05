@@ -41,6 +41,14 @@ public class ProductController {
         }).orElseThrow(() -> new ResourceNotFoundException("ProductId "+ productId + " not found"));
     }
 
+    @PutMapping("/products/{productId}/update-image")
+    public Product updateProductImage(@PathVariable Long productId, @Valid @RequestBody Long imageId) {
+        return productRepository.findById(productId).map(product -> {
+            product.setImageId(imageId);
+            return productRepository.save(product);
+        }).orElseThrow(() -> new ResourceNotFoundException("ProductId "+ productId + " not found"));
+    }
+
     @DeleteMapping("/products/{productId}")
     public ResponseEntity<?> deletePost(@PathVariable Long productId) {
         return productRepository.findById(productId).map(product -> {

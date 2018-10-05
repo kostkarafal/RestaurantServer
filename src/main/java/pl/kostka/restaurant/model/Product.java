@@ -18,15 +18,17 @@ public class Product {
     private String description;
     private ProductType type;
     private Float price;
+    private Long imageId;
 
     public Product() {
     }
 
-    public Product(String name, String description, ProductType type, Float price) {
+    public Product(String name, String description, ProductType type, Float price, Long imageId) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.price = price;
+        this.imageId = imageId;
     }
 
     public Long getId() {
@@ -67,5 +69,13 @@ public class Product {
 
     public void setPrice(Float price) {
         this.price = price;
+    }
+
+    public Long getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Long imageId) {
+        this.imageId = imageId;
     }
 }

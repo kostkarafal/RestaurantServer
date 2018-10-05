@@ -1,5 +1,6 @@
 package pl.kostka.restaurant.model;
 
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @NotNull
+    @UniqueElements
     private String login;
     @NotNull
     private String password;
