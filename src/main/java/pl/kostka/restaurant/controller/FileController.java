@@ -30,7 +30,20 @@ public class FileController {
 
     @PostMapping("/uploadFile")
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
-        DBFile dbFile = dbFileStorageService.storeFIle(file);
+        DBFile dbFile = dbFileStorageService.storeFile(file);
+
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/downloadFile/")
+                .path(dbFile.getId().toString())
+                .toUriString();
+
+        return new UploadFileResponse(dbFile.getFileName(), fileDownloadUri,
+                file.getContentType(), file.getSize());
+    }
+
+    @PutMapping("/updateFile/{fileId}")
+    public UploadFileResponse updateFile(@PathVariable Long fileId, @RequestParam("file") MultipartFile file) {
+        DBFile dbFile = dbFileStorageService.updateFile(file, fileId);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/downloadFile/")
