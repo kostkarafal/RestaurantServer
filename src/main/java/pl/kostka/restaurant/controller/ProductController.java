@@ -2,12 +2,15 @@ package pl.kostka.restaurant.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.model.Product;
 import pl.kostka.restaurant.repository.ProductRepository;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -19,9 +22,10 @@ public class ProductController {
     public ProductController(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
-
+    @PreAuthorize("hasAuthority('ADMIN_USER') or hasAuthority('USER')")
     @GetMapping("/products")
-    public List<Product> getProduct() {
+    public List<Product> getProduct(Principal principal) {
+
         return productRepository.findAll();
     }
 
@@ -29,6 +33,7 @@ public class ProductController {
     public Product addProduct(@RequestBody Product product) {
         return productRepository.save(product);
     }
+
 
     @PutMapping("/products/{productId}")
     public Product updateProduct(@PathVariable Long productId, @Valid @RequestBody Product productRequest) {
