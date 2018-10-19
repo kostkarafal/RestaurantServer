@@ -16,7 +16,6 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private OrderStatus status;
     private Float totalPrice;
 
@@ -31,6 +30,14 @@ public class Order {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private User user;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "order_product", joinColumns
+            = @JoinColumn(name = "order_id",
+            referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id",
+                    referencedColumnName = "id"))
+    private List<Product> products;
 
     public Order() {
     }
@@ -75,4 +82,11 @@ public class Order {
         this.user = user;
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
 }
