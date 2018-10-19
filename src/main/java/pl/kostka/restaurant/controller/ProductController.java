@@ -22,6 +22,8 @@ public class ProductController {
     public ProductController(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
+
+
     @PreAuthorize("hasAuthority('ADMIN_USER') or hasAuthority('USER')")
     @GetMapping("/products")
     public List<Product> getProduct(Principal principal) {

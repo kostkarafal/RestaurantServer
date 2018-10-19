@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import pl.kostka.restaurant.service.RestaurantUserDetailsService;
 
 /**
  * Created by nydiarra on 06/05/17.
@@ -53,13 +54,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RestaurantUserDetailsService userDetailsService;
+
     @Override
     public void configure(ClientDetailsServiceConfigurer configurer) throws Exception {
         configurer
                 .inMemory()
                 .withClient(clientId)
                 .secret(passwordEncoder.encode(clientSecret))
-                .authorizedGrantTypes(grantType)
+                .authorizedGrantTypes(grantType, "refresh_token")
                 .scopes(scopeRead, scopeWrite)
                 .resourceIds(resourceIds);
     }
@@ -71,7 +75,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         endpoints.tokenStore(tokenStore)
                 .accessTokenConverter(accessTokenConverter)
                 .tokenEnhancer(enhancerChain)
-                .authenticationManager(authenticationManager);
+                .authenticationManager(authenticationManager)
+                .userDetailsService(userDetailsService);
     }
 
 }
