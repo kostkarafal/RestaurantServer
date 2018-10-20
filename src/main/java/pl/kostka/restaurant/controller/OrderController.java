@@ -8,6 +8,7 @@ import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.model.Order;
 import pl.kostka.restaurant.model.Product;
 import pl.kostka.restaurant.model.User;
+import pl.kostka.restaurant.model.dto.Basket;
 import pl.kostka.restaurant.model.enums.OrderStatus;
 import pl.kostka.restaurant.repository.OrderRepository;
 import pl.kostka.restaurant.repository.RestaurantRepository;
@@ -59,9 +60,9 @@ public class OrderController {
 
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("orders/basket")
-    public Order getBasket(Principal principal){
+    public Basket getBasket(Principal principal){
         User user =  userRepository.findByUsername(principal.getName());
-        return orderRepository.findUserBasket(user);
+        return orderService.getBasket(orderRepository.findUserBasket(user));
     }
 
     @PreAuthorize("hasAuthority('USER')")

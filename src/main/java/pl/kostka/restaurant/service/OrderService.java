@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.kostka.restaurant.model.Order;
 import pl.kostka.restaurant.model.Product;
 import pl.kostka.restaurant.model.User;
+import pl.kostka.restaurant.model.dto.Basket;
 import pl.kostka.restaurant.model.enums.OrderStatus;
 import pl.kostka.restaurant.repository.OrderRepository;
 import pl.kostka.restaurant.repository.ProductRepository;
@@ -36,6 +37,30 @@ public class OrderService {
         this.productRepository = productRepository;
     }
 
+    public Basket getBasket(Order order) {
+        Basket basket = new Basket();
+
+        List<Product> products = new ArrayList<>();
+        List<Integer> productsAmount = new ArrayList<>();
+
+        order.getProducts().forEach(item -> {
+            if(products.size() == 0 || !products.get(products.size() - 1).getId().equals(item.getId())) {
+                products.add(item);
+                productsAmount.add(1);
+            } else {
+                productsAmount.add(productsAmount.get(productsAmount.size() - 1) + 1);
+                productsAmount.remove(productsAmount.size() - 2);
+            }
+        });
+        basket.setId(order.getId());
+        basket.setOrderStatus(order.getStatus());
+        basket.setProducts(products);
+        basket.setProductsAmount(productsAmount);
+        basket.setTotalPrize(order.getTotalPrice());
+
+        return basket;
+    }
+
     public Order addToBasket(@NotNull User user, List<Long> productIds, Long restaurantId) {
         Order order = orderRepository.findUserBasket(user);
         List<Product> products = new ArrayList<>();
@@ -63,7 +88,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Float calculateTotalPrice(List<Product> products) {
+    private Float calculateTotalPrice(List<Product> products) {
         Float total = 0f;
         for(Product product: products) {
             total += product.getPrice();

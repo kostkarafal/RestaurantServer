@@ -24,7 +24,6 @@ public class ProductController {
     }
 
 
-    @PreAuthorize("hasAuthority('ADMIN_USER') or hasAuthority('USER')")
     @GetMapping("/products")
     public List<Product> getProduct(Principal principal) {
 
