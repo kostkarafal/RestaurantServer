@@ -74,4 +74,16 @@ public class OrderController {
         return order;
     }
 
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("orders/restaurant/{restaurantId}/product/{productId}/change-amount")
+    public Order changeProductAmount(@PathVariable Long productId,
+                                      @PathVariable Long restaurantId,
+                                      @RequestBody Long amount,
+                                      Principal principal) {
+        User user =  userRepository.findByUsername(principal.getName());
+
+        return orderService.changeProductAmount(user,productId,amount,restaurantId);
+
+    }
+
 }

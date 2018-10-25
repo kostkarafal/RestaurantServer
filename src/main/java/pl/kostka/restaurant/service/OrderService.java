@@ -15,6 +15,7 @@ import pl.kostka.restaurant.repository.UserRepository;
 import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,8 +44,14 @@ public class OrderService {
 
         List<Product> products = new ArrayList<>();
         List<Integer> productsAmount = new ArrayList<>();
-
-        order.getProducts().forEach(item -> {
+        List<Product> sortedList = order.getProducts();
+        sortedList.sort(new Comparator<Product>() {
+            @Override
+            public int compare(Product o1, Product o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        sortedList.forEach(item -> {
             if(products.size() == 0 || !products.get(products.size() - 1).getId().equals(item.getId())) {
                 products.add(item);
                 productsAmount.add(1);
@@ -92,6 +99,39 @@ public class OrderService {
         restaurantRepository.findById(restaurantId).ifPresent(order::setRestaurant);
 
         return orderRepository.save(order);
+    }
+
+    public Order changeProductAmount(User user, Long productId, Long amount, Long restaurantId) {
+       if (amount >= 0) {
+           List<Long> productsIds = new ArrayList<>();
+
+           while (amount > 0) {
+                productsIds.add(productId);
+                amount--;
+           }
+          return addToBasket(user, productsIds, restaurantId);
+
+       } else {
+           Order order = null;
+           try {
+               order = orderRepository.findUserBasket(user.getId());
+           } catch (Exception e) { }
+
+           List<Product> products = order.getProducts();
+           Optional<Product> optional = productRepository.findById(productId);
+           while(amount < 0) {
+               optional.ifPresent(product -> {
+                   int index = products.indexOf(product);
+                   if(index >= 0) {
+                        products.remove(index);
+                   }
+               });
+               amount++;
+           }
+           order.setProducts(products);
+           return orderRepository.save(order);
+       }
+
     }
 
     private Float calculateTotalPrice(List<Product> products) {
