@@ -1,14 +1,12 @@
 package pl.kostka.restaurant.model;
 
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
-@Table
+@Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 

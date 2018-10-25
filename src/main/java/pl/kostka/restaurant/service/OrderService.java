@@ -13,6 +13,7 @@ import pl.kostka.restaurant.repository.RestaurantRepository;
 import pl.kostka.restaurant.repository.UserRepository;
 
 import javax.validation.constraints.NotNull;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +63,12 @@ public class OrderService {
     }
 
     public Order addToBasket(@NotNull User user, List<Long> productIds, Long restaurantId) {
-        Order order = orderRepository.findUserBasket(user);
+        Order order = null;
+        try {
+             order = orderRepository.findUserBasket(user.getId());
+        } catch (Exception e) {
+
+        }
         List<Product> products = new ArrayList<>();
 
         productIds.forEach(item -> {

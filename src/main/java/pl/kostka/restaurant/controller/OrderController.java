@@ -62,14 +62,14 @@ public class OrderController {
     @GetMapping("orders/basket")
     public Basket getBasket(Principal principal){
         User user =  userRepository.findByUsername(principal.getName());
-        return orderService.getBasket(orderRepository.findUserBasket(user));
+        return orderService.getBasket(orderRepository.findUserBasket(user.getId()));
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("orders/confirm")
     public Order confirmOrder(Principal principal) {
         User user =  userRepository.findByUsername(principal.getName());
-        Order order = orderRepository.findUserBasket(user);
+        Order order = orderRepository.findUserBasket(user.getId());
         order.setStatus(OrderStatus.CONFIRMED);
         return order;
     }

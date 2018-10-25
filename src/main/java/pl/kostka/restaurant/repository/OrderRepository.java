@@ -15,6 +15,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByRestaurantId(Long restaurantId);
     List<Order> findByUserId(Long userId);
-    @Query("select o from Order o where o.user = :user and o.status = 'BASKET'")
-    Order findUserBasket(@NotNull @Param("user") User user);
+    @Query("select o from Order o where o.user.id = :userId and o.status = 0")
+    Order findUserBasket(@NotNull @Param("userId") Long userId);
 }
