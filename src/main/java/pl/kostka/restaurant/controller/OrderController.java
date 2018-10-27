@@ -48,42 +48,12 @@ public class OrderController {
         return orderRepository.findByUserId(user.getId());
     }
 
-
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("orders/restaurants/{restaurantId}/basket")
-    public Order addToBasket(@RequestBody List<Long> products,
-                             @PathVariable Long restaurantId,
+    @PostMapping("orders/make-order")
+    public Order makeOrder(@RequestBody Basket basket,
                              Principal principal) {
         User user =  userRepository.findByUsername(principal.getName());
-        return orderService.addToBasket(user, products, restaurantId);
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("orders/basket")
-    public Basket getBasket(Principal principal){
-        User user =  userRepository.findByUsername(principal.getName());
-        return orderService.getBasket(orderRepository.findUserBasket(user.getId()));
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("orders/confirm")
-    public Order confirmOrder(Principal principal) {
-        User user =  userRepository.findByUsername(principal.getName());
-        Order order = orderRepository.findUserBasket(user.getId());
-        order.setStatus(OrderStatus.CONFIRMED);
-        return order;
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @PutMapping("orders/restaurant/{restaurantId}/product/{productId}/change-amount")
-    public Order changeProductAmount(@PathVariable Long productId,
-                                      @PathVariable Long restaurantId,
-                                      @RequestBody Long amount,
-                                      Principal principal) {
-        User user =  userRepository.findByUsername(principal.getName());
-
-        return orderService.changeProductAmount(user,productId,amount,restaurantId);
-
+        return orderService.makeOrder(basket, user);
     }
 
 }

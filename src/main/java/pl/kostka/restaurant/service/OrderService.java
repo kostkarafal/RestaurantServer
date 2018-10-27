@@ -2,8 +2,10 @@ package pl.kostka.restaurant.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.kostka.restaurant.exception.ProductIncompatibilityException;
 import pl.kostka.restaurant.model.Order;
 import pl.kostka.restaurant.model.Product;
+import pl.kostka.restaurant.model.Restaurant;
 import pl.kostka.restaurant.model.User;
 import pl.kostka.restaurant.model.dto.Basket;
 import pl.kostka.restaurant.model.enums.OrderStatus;
@@ -39,106 +41,35 @@ public class OrderService {
         this.productRepository = productRepository;
     }
 
-    public Basket getBasket(Order order) {
-        Basket basket = new Basket();
 
+    public Order makeOrder(Basket basket, User user) {
+        Float totalPrice = 0f;
         List<Product> products = new ArrayList<>();
-        List<Integer> productsAmount = new ArrayList<>();
-        List<Product> sortedList = order.getProducts();
-        sortedList.sort(new Comparator<Product>() {
-            @Override
-            public int compare(Product o1, Product o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        sortedList.forEach(item -> {
-            if(products.size() == 0 || !products.get(products.size() - 1).getId().equals(item.getId())) {
-                products.add(item);
-                productsAmount.add(1);
+        for(int i = 0; i < basket.getProducts().size(); i++){
+            Optional optionalProduct = productRepository.findById(basket.getProducts().get(i).getId());
+            if (optionalProduct.isPresent()) {
+                for (int j = 0; j < basket.getProductsAmount().get(i); j++) {
+                    Product product = (Product) optionalProduct.get();
+                    products.add(product);
+                    totalPrice += product.getPrice();
+                }
             } else {
-                productsAmount.add(productsAmount.get(productsAmount.size() - 1) + 1);
-                productsAmount.remove(productsAmount.size() - 2);
+                throw new ProductIncompatibilityException("Products in order was incompatible with products in database");
             }
-        });
-        basket.setId(order.getId());
-        basket.setOrderStatus(order.getStatus());
-        basket.setProducts(products);
-        basket.setProductsAmount(productsAmount);
-        basket.setTotalPrize(order.getTotalPrice());
-
-        return basket;
-    }
-
-    public Order addToBasket(@NotNull User user, List<Long> productIds, Long restaurantId) {
-        Order order = null;
-        try {
-             order = orderRepository.findUserBasket(user.getId());
-        } catch (Exception e) {
-
         }
-        List<Product> products = new ArrayList<>();
 
-        productIds.forEach(item -> {
-            Optional<Product> optional = productRepository.findById(item);
-            optional.ifPresent(products::add);
-        });
-
-        List<Product> result;
-        if(order != null) {
-            result = order.getProducts();
+        Order order = new Order();
+        order.setProducts(products);
+        order.setStatus(OrderStatus.CONFIRMED);
+        if (totalPrice.equals(basket.getTotalPrize())) {
+            order.setTotalPrice(totalPrice);
         } else {
-            order = new Order();
-            result = new ArrayList<>();
-            order.setUser(user);
-            order.setStatus(OrderStatus.BASKET);
+            throw new ProductIncompatibilityException("Products in order was incompatible with products in database");
         }
-
-        result.addAll(products);
-        order.setProducts(result);
-        order.setTotalPrice(calculateTotalPrice(result));
-        restaurantRepository.findById(restaurantId).ifPresent(order::setRestaurant);
+        restaurantRepository.findById(basket.getRestaurantId()).ifPresent(order::setRestaurant);
+        order.setUser(user);
 
         return orderRepository.save(order);
     }
 
-    public Order changeProductAmount(User user, Long productId, Long amount, Long restaurantId) {
-       if (amount >= 0) {
-           List<Long> productsIds = new ArrayList<>();
-
-           while (amount > 0) {
-                productsIds.add(productId);
-                amount--;
-           }
-          return addToBasket(user, productsIds, restaurantId);
-
-       } else {
-           Order order = null;
-           try {
-               order = orderRepository.findUserBasket(user.getId());
-           } catch (Exception e) { }
-
-           List<Product> products = order.getProducts();
-           Optional<Product> optional = productRepository.findById(productId);
-           while(amount < 0) {
-               optional.ifPresent(product -> {
-                   int index = products.indexOf(product);
-                   if(index >= 0) {
-                        products.remove(index);
-                   }
-               });
-               amount++;
-           }
-           order.setProducts(products);
-           return orderRepository.save(order);
-       }
-
-    }
-
-    private Float calculateTotalPrice(List<Product> products) {
-        Float total = 0f;
-        for(Product product: products) {
-            total += product.getPrice();
-        }
-        return total;
-    }
 }
