@@ -60,6 +60,15 @@ public class UserController {
         return userDb != null && BCrypt.checkpw(user.getPassword(), userDb.getPassword());
     }
 
+    @PostMapping("users/check-username")
+    public boolean checkIfUsernameIsFree(@RequestBody String username) {
+        User user = userRepository.findByUsername(username);
+        if(user == null)
+            return true;
+        else
+            return false;
+    }
+
     @PutMapping("/users/{userId}")
     public User updateUser(@PathVariable Long userId, @Valid @RequestBody User userRequest) {
         return userRepository.findById(userId).map(user -> {
