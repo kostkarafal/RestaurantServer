@@ -69,6 +69,15 @@ public class UserController {
             return false;
     }
 
+    @PostMapping("users/check-email")
+    public boolean checkIfEmailIsFree(@RequestBody String email) {
+        User user = userRepository.findByEmail(email);
+        if(user == null)
+            return true;
+        else
+            return false;
+    }
+
     @PutMapping("/users/{userId}")
     public User updateUser(@PathVariable Long userId, @Valid @RequestBody User userRequest) {
         return userRepository.findById(userId).map(user -> {
