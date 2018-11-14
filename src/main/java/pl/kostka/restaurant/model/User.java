@@ -37,6 +37,15 @@ public class User {
     public User() {}
 
 
+    public User(@NotNull String username, @NotNull String password, @NotNull String name, @NotNull String surname, @NotNull String phoneNumber, @NotNull String email) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
     public Long getId() {
         return id;
     }

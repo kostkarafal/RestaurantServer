@@ -4,6 +4,7 @@ package pl.kostka.restaurant.controller;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.exception.ResourceSaveException;
@@ -14,6 +15,7 @@ import pl.kostka.restaurant.repository.RoleRepository;
 import pl.kostka.restaurant.repository.UserRepository;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +32,17 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<User> getUser() {
+    public List<User> getUsers() {
         return userRepository.findAll();
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/users/user")
+    public User getUser(Principal principal) {
+        User user = userRepository.findByUsername(principal.getName());
+        user.setPassword(null);
+        user.setRoles(null);
+        return user;
     }
 
     @PostMapping("/users")
@@ -78,18 +89,23 @@ public class UserController {
             return false;
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/users/{userId}")
-    public User updateUser(@PathVariable Long userId, @Valid @RequestBody User userRequest) {
-        return userRepository.findById(userId).map(user -> {
+    public User updateUser(@PathVariable("userId") Long userId, Principal principal, @RequestBody User userRequest) {
+        User user = userRepository.findByUsername(principal.getName());
+        if (user != null && user.getId().equals(userId)) {
             user.setName(userRequest.getName());
             user.setSurname(userRequest.getSurname());
             user.setPhoneNumber(userRequest.getPhoneNumber());
+            user.setEmail(userRequest.getEmail());
             return userRepository.save(user);
-        }).orElseThrow(() -> new ResourceNotFoundException("UserId "+ userId + " not found"));
+        } else {
+            throw new ResourceNotFoundException("User: "+ principal.getName() + "not found");
+        }
     }
 
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
         return userRepository.findById(userId).map(user -> {
             userRepository.delete(user);
             return ResponseEntity.ok().build();

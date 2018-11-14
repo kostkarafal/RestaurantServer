@@ -30,7 +30,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/products/**").permitAll()
-                .antMatchers("/orders/**" ).authenticated();
+                .antMatchers("/users/**", "/orders/**" ).authenticated();
     }
 }
 
