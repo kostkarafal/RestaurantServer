@@ -1,4 +1,4 @@
-package pl.kostka.restaurant.controller;
+package pl.kostka.restaurant.unit.controller;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import pl.kostka.restaurant.controller.UserController;
 import pl.kostka.restaurant.model.Role;
 import pl.kostka.restaurant.model.User;
+import pl.kostka.restaurant.repository.RoleRepository;
+import pl.kostka.restaurant.repository.UserRepository;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -32,8 +36,12 @@ public class UserControllerTests {
 
     @MockBean
     private UserController userController;
+
     User mockUser = new User("test99", "superTestPass", "Test", "Test", "Test", "Test");
     String mockUserRequest = "{\"username\":\"test99\",\"password\":\"superTestPass\",\"name\":\"Test\",\"surname\":\"Test\",\"phoneNumber\":\"Test\",\"email\":\"Test\"}";
+    String wrongUserReguest = "{\"username\":\"test99\"}";
+
+    Role mockRole = new Role("USER", "test");
 
     Principal mockPrincipal = new Principal() {
         @Override

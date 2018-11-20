@@ -16,6 +16,13 @@ public class Basket {
     public Basket() {
     }
 
+    public Basket(Float totalPrize, List<Integer> productsAmount, List<Product> products, Long restaurantId) {
+        this.totalPrize = totalPrize;
+        this.productsAmount = productsAmount;
+        this.products = products;
+        this.restaurantId = restaurantId;
+    }
+
     public Long getId() {
         return id;
     }

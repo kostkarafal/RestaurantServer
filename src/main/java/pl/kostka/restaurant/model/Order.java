@@ -42,6 +42,14 @@ public class Order {
     public Order() {
     }
 
+    public Order(OrderStatus status, Float totalPrice, Restaurant restaurant, User user, List<Product> products) {
+        this.status = status;
+        this.totalPrice = totalPrice;
+        this.restaurant = restaurant;
+        this.user = user;
+        this.products = products;
+    }
+
     public Long getId() {
         return id;
     }

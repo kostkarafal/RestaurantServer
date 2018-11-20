@@ -21,21 +21,16 @@ public class RestaurantUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(s);
+       return userRepository.findByUsername(s).map(user -> {
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            user.getRoles().forEach(role -> {
+                authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
+            });
 
-        if (user == null) {
-            throw new UsernameNotFoundException(String.format("The username %s doesn't exist", s));
-        }
+            return new org.springframework.security.core.userdetails.
+                    User(user.getUsername(), user.getPassword(), authorities);
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
-        });
-
-        UserDetails userDetails = new org.springframework.security.core.userdetails.
-                User(user.getUsername(), user.getPassword(), authorities);
-
-        return userDetails;
+        }).orElseThrow(()-> new UsernameNotFoundException(String.format("The username %s doesn't exist", s)));
     }
 
 }

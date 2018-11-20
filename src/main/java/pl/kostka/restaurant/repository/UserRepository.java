@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import pl.kostka.restaurant.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -16,8 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
  //   List<User> checkLogin(@Param("login") String login,
  //                          @Param("password") String password);
 
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
-    User findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
+    boolean existsByUsername(String username);
 }

@@ -15,8 +15,12 @@ import java.io.IOException;
 @Service
 public class DBFileStorageService {
 
-    @Autowired
     private DBFileRepository dbFileRepository;
+
+    @Autowired
+    public DBFileStorageService(DBFileRepository dbFileRepository) {
+        this.dbFileRepository = dbFileRepository;
+    }
 
     public DBFile storeFile(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());

@@ -24,11 +24,16 @@ public class Product {
     }
 
     public Product(String name, String description, ProductType type, Float price, Long imageId) {
+
         this.name = name;
         this.description = description;
         this.type = type;
         this.price = price;
         this.imageId = imageId;
+    }
+
+    public Product(Product product){
+        this(product.getName(), product.getDescription(), product.getType(), product.getPrice(), product.getImageId());
     }
 
     public Long getId() {

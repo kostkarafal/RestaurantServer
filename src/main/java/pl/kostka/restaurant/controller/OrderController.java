@@ -44,16 +44,19 @@ public class OrderController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/orders")
     public List<Order> getAllOrdersByUserId(Principal principal) {
-        User user =  userRepository.findByUsername(principal.getName());
-        return orderRepository.findByUserId(user.getId());
+        return userRepository.findByUsername(principal.getName()).map(user ->
+                orderRepository.findByUserId(user.getId())
+            ).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("orders/make-order")
     public Order makeOrder(@RequestBody Basket basket,
                              Principal principal) {
-        User user =  userRepository.findByUsername(principal.getName());
-        return orderService.makeOrder(basket, user);
+        return userRepository.findByUsername(principal.getName()).map(user ->
+                orderService.makeOrder(basket, user)
+        ).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
     }
 
 }

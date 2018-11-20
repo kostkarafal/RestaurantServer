@@ -28,16 +28,13 @@ public class OrderService {
 
     private RestaurantRepository restaurantRepository;
 
-    private UserRepository userRepository;
-
     private ProductRepository productRepository;
 
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, RestaurantRepository restaurantRepository, UserRepository userRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, RestaurantRepository restaurantRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.restaurantRepository = restaurantRepository;
-        this.userRepository = userRepository;
         this.productRepository = productRepository;
     }
 
@@ -68,8 +65,8 @@ public class OrderService {
         }
         restaurantRepository.findById(basket.getRestaurantId()).ifPresent(order::setRestaurant);
         order.setUser(user);
-
-        return orderRepository.save(order);
+        orderRepository.save(order);
+        return order;
     }
 
 }

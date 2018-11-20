@@ -25,8 +25,7 @@ public class ProductController {
 
 
     @GetMapping("/products")
-    public List<Product> getProduct(Principal principal) {
-
+    public List<Product> getProduct() {
         return productRepository.findAll();
     }
 
@@ -37,7 +36,7 @@ public class ProductController {
 
 
     @PutMapping("/products/{productId}")
-    public Product updateProduct(@PathVariable Long productId, @Valid @RequestBody Product productRequest) {
+    public Product updateProduct(@PathVariable(value = "productId")  Long productId, @Valid @RequestBody Product productRequest) {
         return productRepository.findById(productId).map(product -> {
             product.setName(productRequest.getName());
             product.setDescription(productRequest.getDescription());
@@ -47,8 +46,8 @@ public class ProductController {
         }).orElseThrow(() -> new ResourceNotFoundException("ProductId "+ productId + " not found"));
     }
 
-    @PutMapping("/products/{productId}/update-image")
-    public Product updateProductImage(@PathVariable Long productId, @Valid @RequestBody Long imageId) {
+    @PutMapping("/products/{productId}/image/{imageId}")
+    public Product updateProductImage(@PathVariable(value = "productId") Long productId,@PathVariable(value = "imageId") Long imageId) {
         return productRepository.findById(productId).map(product -> {
             product.setImageId(imageId);
             return productRepository.save(product);
@@ -56,7 +55,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<?> deletePost(@PathVariable Long productId) {
+    public ResponseEntity<?> deleteProduct(@PathVariable(value = "productId") Long productId) {
         return productRepository.findById(productId).map(product -> {
             productRepository.delete(product);
             return ResponseEntity.ok().build();

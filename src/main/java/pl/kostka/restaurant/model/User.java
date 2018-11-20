@@ -46,6 +46,10 @@ public class User {
         this.email = email;
     }
 
+    public User(User user){
+        this(user.getUsername(), user.getPassword(), user.getName(), user.surname, user.getPhoneNumber(), user.getEmail());
+    }
+
     public Long getId() {
         return id;
     }

@@ -39,69 +39,70 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/users/user")
     public User getUser(Principal principal) {
-        User user = userRepository.findByUsername(principal.getName());
-        user.setPassword(null);
-        user.setRoles(null);
-        return user;
+        return userRepository.findByUsername(principal.getName()).map(user -> {
+            user.setPassword(null);
+            user.setRoles(null);
+            return user;
+        }).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user) {
-        User userDb = userRepository.findByUsername(user.getUsername());
-        if (userDb == null) {
-            String hash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-            user.setPassword(hash);
+        if(user.getUsername() != null && user.getName() != null && user.getSurname() != null && user.getEmail() != null && user.getPhoneNumber() != null) {
+            if (!userRepository.findByUsername(user.getUsername()).isPresent()) {
 
-            Role role = roleRepository.findByRoleName("USER");
-            List<Role> roles = new ArrayList<>();
-            roles.add(role);
-            user.setRoles(roles);
-            try {
-                return userRepository.save(user);
-            } catch (Exception e) {
-                throw new ResourceSaveException(e.getMessage());
-            }
-        } else
-            throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already taken");
+                    String hash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+                    user.setPassword(hash);
+
+                    Role role = roleRepository.findByRoleName("USER").orElseThrow(()-> new ResourceNotFoundException("User role not found"));
+                    List<Role> roles = new ArrayList<>();
+                    roles.add(role);
+                    user.setRoles(roles);
+                    try {
+                        return userRepository.save(user);
+                    } catch (Exception e) {
+                        throw new ResourceSaveException(e.getMessage());
+                    }
+
+            } else
+                throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already taken");
+        } else {
+            throw new NullPointerException("Some of user atributes is null!");
+        }
     }
 
     @PostMapping("users/login")
     public boolean checkUser(@RequestBody User user) {
-        User userDb = userRepository.findByUsername(user.getUsername());
-        return userDb != null && BCrypt.checkpw(user.getPassword(), userDb.getPassword());
+        return userRepository.findByUsername(user.getUsername()).map(userDb ->
+            BCrypt.checkpw(user.getPassword(), userDb.getPassword())
+        ).orElse( false);
     }
 
     @PostMapping("users/check-username")
     public boolean checkIfUsernameIsFree(@RequestBody String username) {
-        User user = userRepository.findByUsername(username);
-        if(user == null)
-            return true;
-        else
-            return false;
+        return !userRepository.findByUsername(username).isPresent();
+
     }
 
     @PostMapping("users/check-email")
     public boolean checkIfEmailIsFree(@RequestBody String email) {
-        User user = userRepository.findByEmail(email);
-        if(user == null)
-            return true;
-        else
-            return false;
+        return !userRepository.findByEmail(email).isPresent();
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/users/{userId}")
     public User updateUser(@PathVariable("userId") Long userId, Principal principal, @RequestBody User userRequest) {
-        User user = userRepository.findByUsername(principal.getName());
-        if (user != null && user.getId().equals(userId)) {
-            user.setName(userRequest.getName());
-            user.setSurname(userRequest.getSurname());
-            user.setPhoneNumber(userRequest.getPhoneNumber());
-            user.setEmail(userRequest.getEmail());
-            return userRepository.save(user);
-        } else {
-            throw new ResourceNotFoundException("User: "+ principal.getName() + "not found");
-        }
+       return userRepository.findByUsername(principal.getName()).map(user -> {
+           if (user.getId().equals(userId)) {
+               user.setName(userRequest.getName());
+               user.setSurname(userRequest.getSurname());
+               user.setPhoneNumber(userRequest.getPhoneNumber());
+               user.setEmail(userRequest.getEmail());
+               return userRepository.save(user);
+           } else {
+               throw new ResourceNotFoundException("User: "+ principal.getName() + "not found");
+           }
+       }).orElseThrow(()-> new  ResourceNotFoundException("User: "+ principal.getName() + "not found"));
     }
 
     @DeleteMapping("/users/{userId}")
