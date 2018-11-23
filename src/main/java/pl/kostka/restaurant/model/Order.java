@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pl.kostka.restaurant.model.enums.OrderStatus;
+import pl.kostka.restaurant.model.enums.OrderType;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,6 +19,7 @@ public class Order {
     private Long id;
     private OrderStatus status;
     private Float totalPrice;
+    private OrderType orderType;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
@@ -96,5 +98,13 @@ public class Order {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
     }
 }

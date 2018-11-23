@@ -20,6 +20,9 @@ public class Address {
     private String buildingNumber;
     private String apartmentNumber;
     private String title;
+    private Double longitude;
+    private Double latitude;
+    private Boolean isAvailable;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -30,12 +33,15 @@ public class Address {
     public Address() {
     }
 
-    public Address(String city, String street, String buildingNumber, String apartmentNumber, String title, User user) {
+
+    public Address(String city, String street, String buildingNumber, String apartmentNumber, String title, Double longitude, Double latitude, User user) {
         this.city = city;
         this.street = street;
         this.buildingNumber = buildingNumber;
         this.apartmentNumber = apartmentNumber;
         this.title = title;
+        this.longitude = longitude;
+        this.latitude = latitude;
         this.user = user;
     }
 
@@ -93,5 +99,29 @@ public class Address {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(Boolean available) {
+        isAvailable = available;
     }
 }

@@ -16,6 +16,7 @@ import pl.kostka.restaurant.model.User;
 import pl.kostka.restaurant.repository.AddressRepository;
 import pl.kostka.restaurant.repository.RoleRepository;
 import pl.kostka.restaurant.repository.UserRepository;
+import pl.kostka.restaurant.service.AddressService;
 
 import java.security.Principal;
 
@@ -29,6 +30,9 @@ public class AddressIntegrationTest {
     @Autowired
     private AddressRepository addressRepository;
 
+    @Autowired
+    private AddressService addressService;
+
     private AddressController addressController;
 
     private User testUser;
@@ -39,12 +43,12 @@ public class AddressIntegrationTest {
 
     @Before
     public void init() {
-        addressController = new AddressController(addressRepository, userRepository);
+        addressController = new AddressController(addressRepository, userRepository, addressService);
 
         testUser = new User("test99", "superTestPass", "Test", "Test", "Test", "Test");
         userRepository.save(testUser);
 
-        testAddress = new Address("test","test","test","test","test", userRepository.findByUsername("test99").orElseThrow(()-> new ResourceNotFoundException("User not found")));
+        testAddress = new Address("test","test","test","test","test",1d,1d, userRepository.findByUsername("test99").orElseThrow(()-> new ResourceNotFoundException("User not found")));
 
         principal = new Principal() {
             @Override
@@ -56,14 +60,14 @@ public class AddressIntegrationTest {
 
     @Test
     public void testGetAllAddressesByUserId_noAddressess(){
-        Assert.assertEquals(0, addressController.getAllAdressesByUserId(principal).size());
+        Assert.assertEquals(0, addressController.getAdressesByUserId(principal).size());
 
     }
 
     @Test
     public void testGetAllAddressesByUserId(){
         addressRepository.save(testAddress);
-        Assert.assertEquals(1, addressController.getAllAdressesByUserId(principal).size());
+        Assert.assertEquals(1, addressController.getAdressesByUserId(principal).size());
     }
 
     @Test
@@ -85,7 +89,7 @@ public class AddressIntegrationTest {
     public void testUpdateAddres() {
         Address address = addressRepository.save(testAddress);
 
-        Address updateAddress = new Address("test2","test2","test2","test2","test2",address.getUser());
+        Address updateAddress = new Address("test2","test2","test2","test2","test2",1d,1d,address.getUser());
 
         Address result = addressController.updateAddres(principal,address.getId(),updateAddress);
 
@@ -105,6 +109,16 @@ public class AddressIntegrationTest {
 
         Assert.assertTrue(!addressRepository.existsById(address.getId()));
     }
+
+    @Test
+    public void testUpdateSelectedAddress() {
+        Address address = addressRepository.save(testAddress);
+        Address result = addressController.updateSelectedAddress(principal, address.getId());
+        User resultUser = userRepository.findByUsername(principal.getName()).orElseThrow(()-> new ResourceNotFoundException(""));
+
+        Assert.assertEquals(resultUser.getSelectedAddress().getId(), result.getId());
+    }
+
 
 
 }

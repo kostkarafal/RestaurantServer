@@ -18,6 +18,8 @@ public class Restaurant {
     private String street;
     private String buildingNumber;
     private String openHours;
+    private Double latitude;
+    private Double longitude;
 
     public Restaurant() {
     }
@@ -85,5 +87,21 @@ public class Restaurant {
 
     public void setOpenHours(String openHours) {
         this.openHours = openHours;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

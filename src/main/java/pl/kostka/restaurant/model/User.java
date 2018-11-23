@@ -25,6 +25,10 @@ public class User {
     private String phoneNumber;
     @NotNull
     private String email;
+
+    @OneToOne
+    private Address selectedAddress;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns
             = @JoinColumn(name = "user_id",
@@ -112,5 +116,13 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public Address getSelectedAddress() {
+        return selectedAddress;
+    }
+
+    public void setSelectedAddress(Address selectedAddress) {
+        this.selectedAddress = selectedAddress;
     }
 }

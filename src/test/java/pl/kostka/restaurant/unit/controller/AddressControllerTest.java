@@ -43,7 +43,7 @@ public class AddressControllerTest {
     public void testGetAllAddresses() throws Exception{
 
         Mockito.when(
-                addressController.getAllAdressesByUserId(any(Principal.class))).thenReturn(Collections.emptyList());
+                addressController.getAdressesByUserId(any(Principal.class))).thenReturn(Collections.emptyList());
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/addresses")
@@ -65,7 +65,7 @@ public class AddressControllerTest {
 
         Mockito.when(
                 addressController.createAddress(any(Principal.class), any(Address.class)))
-                .thenReturn(new Address("test","test","test","test","test", null));
+                .thenReturn(new Address("test","test","test","test","test",1d,1d, null));
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/addresses").content("{}").contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +86,7 @@ public class AddressControllerTest {
 
         Mockito.when(
                 addressController.updateAddres(any(Principal.class),anyLong(), any(Address.class)))
-                .thenReturn(new Address("test","test","test","test","test", null));
+                .thenReturn(new Address("test","test","test","test","test",1d,1d, null));
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .put("/addresses/1").content("{}").contentType(MediaType.APPLICATION_JSON)
