@@ -35,6 +35,22 @@ public class AddressService {
 
     }
 
+    public Address updateAddress(String username, Address address, Long addressId) {
+        return userRepository.findByUsername(username).map(user ->
+            addressRepository.findByUserIdAndId(user.getId(), addressId).map(dbAddress -> {
+                dbAddress.setCity(address.getCity());
+                dbAddress.setStreet(address.getStreet());
+                dbAddress.setBuildingNumber(address.getBuildingNumber());
+                dbAddress.setApartmentNumber(address.getApartmentNumber());
+                dbAddress.setTitle(address.getTitle());
+                dbAddress.setLatitude(address.getLatitude());
+                dbAddress.setLongitude(address.getLongitude());
+                dbAddress.setAvailable(checkIfAddressIsInRangeOfAnyRestaurant(address.getLatitude(), address.getLongitude()));
+                return addressRepository.save(dbAddress);
+            }).orElseThrow(() -> new ResourceNotFoundException("User " + username + "has no address with id" + addressId))
+        ).orElseThrow(()-> new ResourceNotFoundException("User "+ username+ "not found"));
+    }
+
     private boolean checkIfAddressIsInRangeOfAnyRestaurant(Double latitude, Double longitude) {
         List<Restaurant> restaurants = restaurantRepository.findAll();
 

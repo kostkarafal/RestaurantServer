@@ -29,6 +29,9 @@ public class User {
     @OneToOne
     private Address selectedAddress;
 
+    @OneToOne
+    private Restaurant selectedRestaurant;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns
             = @JoinColumn(name = "user_id",
@@ -124,5 +127,13 @@ public class User {
 
     public void setSelectedAddress(Address selectedAddress) {
         this.selectedAddress = selectedAddress;
+    }
+
+    public Restaurant getSelectedRestaurant() {
+        return selectedRestaurant;
+    }
+
+    public void setSelectedRestaurant(Restaurant selectedRestaurant) {
+        this.selectedRestaurant = selectedRestaurant;
     }
 }

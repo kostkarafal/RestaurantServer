@@ -1,6 +1,7 @@
 package pl.kostka.restaurant.model.dto;
 
 import pl.kostka.restaurant.model.Product;
+import pl.kostka.restaurant.model.enums.OrderType;
 
 
 import java.util.List;
@@ -12,6 +13,8 @@ public class Basket {
     private List<Integer> productsAmount;
     private List<Product> products;
     private Long restaurantId;
+    private Long deliveryAddressId;
+    private OrderType orderType;
 
     public Basket() {
     }
@@ -61,5 +64,21 @@ public class Basket {
 
     public void setRestaurantId(Long restaurantId) {
         this.restaurantId = restaurantId;
+    }
+
+    public Long getDeliveryAddressId() {
+        return deliveryAddressId;
+    }
+
+    public void setDeliveryAddressId(Long deliveryAddressId) {
+        this.deliveryAddressId = deliveryAddressId;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
     }
 }

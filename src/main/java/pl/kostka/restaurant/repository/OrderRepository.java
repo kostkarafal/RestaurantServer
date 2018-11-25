@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.kostka.restaurant.model.Order;
 import pl.kostka.restaurant.model.User;
+import pl.kostka.restaurant.model.enums.OrderStatus;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -15,6 +16,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByRestaurantId(Long restaurantId);
     List<Order> findByUserId(Long userId);
+
+    @Query("select o from Order o where o.user.id = :userId and o.status in :statuses")
+    List<Order> findByUserIdAAndStatus(@Param("userId")Long userId, @Param("statuses")List<OrderStatus> statuses);
+
     @Query("select o from Order o where o.user.id = :userId and o.status = 0")
     Order findUserBasket(@NotNull @Param("userId") Long userId);
 }

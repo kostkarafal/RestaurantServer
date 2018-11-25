@@ -60,48 +60,10 @@ public class AddressController {
     public Address updateAddres(Principal principal,
                                  @PathVariable (value = "addressId") Long addressId,
                                  @Valid @RequestBody Address addressRequest) {
-        if(!userRepository.existsByUsername(principal.getName())) {
-            throw new ResourceNotFoundException("User " + principal.getName() + " not found");
-        }
-
-        return addressRepository.findById(addressId).map(address -> {
-            address.setTitle(addressRequest.getTitle());
-            address.setCity(addressRequest.getCity());
-            address.setStreet(addressRequest.getStreet());
-            address.setBuildingNumber(addressRequest.getBuildingNumber());
-            address.setApartmentNumber(addressRequest.getApartmentNumber());
-            address.setLatitude(addressRequest.getLatitude());
-            address.setLongitude(addressRequest.getLongitude());
-            return addressRepository.save(address);
-        }).orElseThrow(() -> new ResourceNotFoundException("AddressId " + addressId + "not found"));
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/addresses/selected")
-    public Address getSelectedAddress(Principal principal) {
-
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()-> new ResourceNotFoundException("User " + principal.getName() + " not found"));
-        if(user.getSelectedAddress() != null) {
-            return user.getSelectedAddress();
-        } else {
-            throw new ResourceNotFoundException("User has no seelected address");
-        }
+      return addressService.updateAddress(principal.getName(), addressRequest, addressId);
     }
 
 
-    @PreAuthorize("hasAuthority('USER')")
-    @PutMapping("/addresses/{addressId}/select")
-    public Address updateSelectedAddress(Principal principal,
-                                              @PathVariable (value = "addressId") Long addressId) {
-
-        return userRepository.findByUsername(principal.getName()).map(user ->
-             addressRepository.findByUserIdAndId(user.getId(),addressId).map(address -> {
-                user.setSelectedAddress(address);
-                userRepository.save(user);
-                return address;
-            }).orElseThrow(() -> new ResourceNotFoundException("User "+principal.getName() + "do not have address with id " + addressId ))
-       ).orElseThrow(()-> new ResourceNotFoundException("User " + principal.getName() + " not found"));
-    }
 
     @PreAuthorize("hasAuthority('USER')")
     @DeleteMapping("/addresses/{addressId}")

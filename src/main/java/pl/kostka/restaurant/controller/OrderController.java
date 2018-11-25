@@ -18,6 +18,7 @@ import pl.kostka.restaurant.service.OrderService;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -43,10 +44,18 @@ public class OrderController {
 
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/orders")
-    public List<Order> getAllOrdersByUserId(Principal principal) {
+    public List<Order> getActualOrdersByUserId(Principal principal) {
         return userRepository.findByUsername(principal.getName()).map(user ->
-                orderRepository.findByUserId(user.getId())
+                orderRepository.findByUserIdAAndStatus(user.getId(), Arrays.asList(OrderStatus.CONFIRMED, OrderStatus.DELIVERY, OrderStatus.PROCESSING))
             ).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/orders/history")
+    public List<Order> getOrdersHistoryByUserId(Principal principal) {
+        return userRepository.findByUsername(principal.getName()).map(user ->
+                orderRepository.findByUserIdAAndStatus(user.getId(), Arrays.asList(OrderStatus.CANCELED, OrderStatus.COMPLETED))
+        ).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
 
     @PreAuthorize("hasAuthority('USER')")

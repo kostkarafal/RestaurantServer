@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.exception.ResourceSaveException;
 import pl.kostka.restaurant.exception.UserAlreadyExistsException;
+import pl.kostka.restaurant.model.Address;
+import pl.kostka.restaurant.model.Restaurant;
 import pl.kostka.restaurant.model.Role;
 import pl.kostka.restaurant.model.User;
+import pl.kostka.restaurant.repository.AddressRepository;
+import pl.kostka.restaurant.repository.RestaurantRepository;
 import pl.kostka.restaurant.repository.RoleRepository;
 import pl.kostka.restaurant.repository.UserRepository;
 
@@ -24,11 +28,15 @@ public class UserController {
 
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+    private AddressRepository addressRepository;
+    private RestaurantRepository restaurantRepository;
 
     @Autowired
-    public UserController(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserController(UserRepository userRepository, RoleRepository roleRepository, AddressRepository addressRepository, RestaurantRepository restaurantRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.addressRepository = addressRepository;
+        this.restaurantRepository = restaurantRepository;
     }
 
     @GetMapping("/users")
@@ -111,6 +119,59 @@ public class UserController {
             userRepository.delete(user);
             return ResponseEntity.ok().build();
         }).orElseThrow(() -> new ResourceNotFoundException("UserId "+ userId + " not found"));
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/users/selected-delivery-address")
+    public Address getSelectedDeliveryAddress(Principal principal) {
+
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()-> new ResourceNotFoundException("User " + principal.getName() + " not found"));
+        if(user.getSelectedAddress() != null) {
+            return user.getSelectedAddress();
+        } else {
+            throw new ResourceNotFoundException("User has no selected address");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/users/selected-restaurant")
+    public Restaurant getSelectedRestaurant(Principal principal) {
+
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()-> new ResourceNotFoundException("User " + principal.getName() + " not found"));
+        if(user.getSelectedRestaurant() != null) {
+            return user.getSelectedRestaurant();
+        } else {
+            throw new ResourceNotFoundException("User has no selected address");
+        }
+    }
+
+
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("users/addresses/{addressId}/select-delivery-address")
+    public Address updateSelectedAddress(Principal principal,
+                                         @PathVariable (value = "addressId") Long addressId) {
+
+        return userRepository.findByUsername(principal.getName()).map(user ->
+                addressRepository.findByUserIdAndId(user.getId(),addressId).map(address -> {
+                    user.setSelectedAddress(address);
+                    userRepository.save(user);
+                    return address;
+                }).orElseThrow(() -> new ResourceNotFoundException("User "+principal.getName() + "do not have address with id " + addressId ))
+        ).orElseThrow(()-> new ResourceNotFoundException("User " + principal.getName() + " not found"));
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("users/restaurants/{restaurantId}/select-restaurant")
+    public Restaurant updateSelectedRestaurant(Principal principal,
+                                               @PathVariable (value = "restaurantId") Long restaurantId) {
+
+        return userRepository.findByUsername(principal.getName()).map(user ->
+                restaurantRepository.findById(restaurantId).map(restaurant -> {
+                    user.setSelectedRestaurant(restaurant);
+                    userRepository.save(user);
+                    return restaurant;
+                }).orElseThrow(() -> new ResourceNotFoundException("RestaurantId " + restaurantId + "not found"))
+        ).orElseThrow(()-> new ResourceNotFoundException("User " + principal.getName() + " not found"));
     }
 
 
