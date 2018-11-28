@@ -41,7 +41,9 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getUsers() {
+        System.out.println("Test facebook authorization callback");
         return userRepository.findAll();
+
     }
 
     @PreAuthorize("hasAuthority('USER')")
