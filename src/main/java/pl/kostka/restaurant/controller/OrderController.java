@@ -59,7 +59,7 @@ public class OrderController {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("orders/make-order")
+    @PostMapping("/orders/make-order")
     public Order makeOrder(@RequestBody Basket basket,
                              Principal principal) {
         return userRepository.findByUsername(principal.getName()).map(user ->

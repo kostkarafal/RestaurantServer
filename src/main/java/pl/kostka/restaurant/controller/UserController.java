@@ -3,9 +3,25 @@ package pl.kostka.restaurant.controller;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.token.AccessTokenProvider;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.AuthorizationRequest;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
+import pl.kostka.restaurant.client.FacebookClient;
 import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.exception.ResourceSaveException;
 import pl.kostka.restaurant.exception.UserAlreadyExistsException;
@@ -17,10 +33,13 @@ import pl.kostka.restaurant.repository.AddressRepository;
 import pl.kostka.restaurant.repository.RestaurantRepository;
 import pl.kostka.restaurant.repository.RoleRepository;
 import pl.kostka.restaurant.repository.UserRepository;
+import pl.kostka.restaurant.service.FacebookConnectionService;
 
 import javax.validation.Valid;
+import java.nio.file.attribute.UserPrincipal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -30,6 +49,9 @@ public class UserController {
     private RoleRepository roleRepository;
     private AddressRepository addressRepository;
     private RestaurantRepository restaurantRepository;
+
+   @Autowired
+   private FacebookConnectionService facebookConnectionService;
 
     @Autowired
     public UserController(UserRepository userRepository, RoleRepository roleRepository, AddressRepository addressRepository, RestaurantRepository restaurantRepository) {
@@ -41,9 +63,12 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getUsers() {
-        System.out.println("Test facebook authorization callback");
         return userRepository.findAll();
+    }
 
+    @GetMapping("/login/facebook")
+    public OAuth2AccessToken facebookLogin(@RequestParam String token) {
+        return facebookConnectionService.facebookLogin(token);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -81,20 +106,20 @@ public class UserController {
         }
     }
 
-    @PostMapping("users/login")
+    @PostMapping("/users/login")
     public boolean checkUser(@RequestBody User user) {
         return userRepository.findByUsername(user.getUsername()).map(userDb ->
             BCrypt.checkpw(user.getPassword(), userDb.getPassword())
         ).orElse( false);
     }
 
-    @PostMapping("users/check-username")
+    @PostMapping("/users/check-username")
     public boolean checkIfUsernameIsFree(@RequestBody String username) {
         return !userRepository.findByUsername(username).isPresent();
 
     }
 
-    @PostMapping("users/check-email")
+    @PostMapping("/users/check-email")
     public boolean checkIfEmailIsFree(@RequestBody String email) {
         return !userRepository.findByEmail(email).isPresent();
     }
@@ -149,7 +174,7 @@ public class UserController {
 
 
     @PreAuthorize("hasAuthority('USER')")
-    @PutMapping("users/addresses/{addressId}/select-delivery-address")
+    @PutMapping("/users/addresses/{addressId}/select-delivery-address")
     public Address updateSelectedAddress(Principal principal,
                                          @PathVariable (value = "addressId") Long addressId) {
 
@@ -163,7 +188,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @PutMapping("users/restaurants/{restaurantId}/select-restaurant")
+    @PutMapping("/users/restaurants/{restaurantId}/select-restaurant")
     public Restaurant updateSelectedRestaurant(Principal principal,
                                                @PathVariable (value = "restaurantId") Long restaurantId) {
 

@@ -49,7 +49,7 @@ public class AddressController {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("addresses")
+    @PostMapping("/addresses")
     public Address createAddress(Principal principal,
                                  @Valid @RequestBody Address address) {
         return addressService.addNewAddress(principal.getName(), address);

@@ -21,7 +21,7 @@ public class User {
     private String name;
     @NotNull
     private String surname;
-    @NotNull
+    @Column(nullable = true)
     private String phoneNumber;
     @NotNull
     private String email;
@@ -44,7 +44,7 @@ public class User {
     public User() {}
 
 
-    public User(@NotNull String username, @NotNull String password, @NotNull String name, @NotNull String surname, @NotNull String phoneNumber, @NotNull String email) {
+    public User(@NotNull String username, @NotNull String password, @NotNull String name, @NotNull String surname, String phoneNumber, @NotNull String email) {
         this.username = username;
         this.password = password;
         this.name = name;
