@@ -4,14 +4,15 @@ import pl.kostka.restaurant.model.Product;
 import pl.kostka.restaurant.model.enums.OrderType;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Basket {
 
     private Long id;
     private Float totalPrize;
-    private List<Integer> productsAmount;
-    private List<Product> products;
+    private List<ProductAmount> products;
     private Long restaurantId;
     private Long deliveryAddressId;
     private OrderType orderType;
@@ -19,9 +20,8 @@ public class Basket {
     public Basket() {
     }
 
-    public Basket(Float totalPrize, List<Integer> productsAmount, List<Product> products, Long restaurantId) {
+    public Basket(Float totalPrize, List<ProductAmount> products, Long restaurantId) {
         this.totalPrize = totalPrize;
-        this.productsAmount = productsAmount;
         this.products = products;
         this.restaurantId = restaurantId;
     }
@@ -42,19 +42,11 @@ public class Basket {
         this.totalPrize = totalPrize;
     }
 
-    public List<Integer> getProductsAmount() {
-        return productsAmount;
-    }
-
-    public void setProductsAmount(List<Integer> productsAmount) {
-        this.productsAmount = productsAmount;
-    }
-
-    public List<Product> getProducts() {
+    public List<ProductAmount> getProducts() {
         return products;
     }
 
-    public void setProducts(List<Product> products) {
+    public void setProducts(List<ProductAmount> products) {
         this.products = products;
     }
 

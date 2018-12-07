@@ -71,7 +71,7 @@ public class AddressController {
                                            @PathVariable (value = "addressId") Long addressId) {
 
         return userRepository.findByUsername(principal.getName()).map(user -> {
-            if(user.getSelectedAddress().getId().equals(addressId)){
+            if(user.getSelectedAddress() != null && user.getSelectedAddress().getId().equals(addressId)){
                 user.setSelectedAddress(null);
                 userRepository.save(user);
             }

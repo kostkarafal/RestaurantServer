@@ -6,6 +6,7 @@ import pl.kostka.restaurant.exception.ProductIncompatibilityException;
 import pl.kostka.restaurant.exception.ResourceNotFoundException;
 import pl.kostka.restaurant.model.*;
 import pl.kostka.restaurant.model.dto.Basket;
+import pl.kostka.restaurant.model.dto.ProductAmount;
 import pl.kostka.restaurant.model.enums.OrderStatus;
 import pl.kostka.restaurant.model.enums.OrderType;
 import pl.kostka.restaurant.repository.AddressRepository;
@@ -15,6 +16,7 @@ import pl.kostka.restaurant.repository.RestaurantRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -41,7 +43,23 @@ public class OrderService {
     public Order makeOrder(Basket basket, User user) {
         Float totalPrice = 0f;
         List<Product> products = new ArrayList<>();
-        for(int i = 0; i < basket.getProducts().size(); i++){
+
+        for(ProductAmount map : basket.getProducts()){
+            Product dbProduct = productRepository.findById(map.getProduct().getId()).orElseThrow(()-> new ResourceNotFoundException("Cannot find products passed in basket"));
+
+            if(dbProduct.getPrice().equals(map.getProduct().getPrice())) {
+                for(int i = 0; i < map.getAmount(); i++){
+                    products.add(dbProduct);
+                    totalPrice += dbProduct.getPrice();
+                }
+            } else {
+                throw new ProductIncompatibilityException("Products in order was incompatible with products in database");
+            }
+        }
+
+
+
+        /*for(int i = 0; i < basket.getProducts().size(); i++){
             Optional optionalProduct = productRepository.findById(basket.getProducts().get(i).getId());
             if (optionalProduct.isPresent()) {
                 for (int j = 0; j < basket.getProductsAmount().get(i); j++) {
@@ -52,7 +70,7 @@ public class OrderService {
             } else {
                 throw new ProductIncompatibilityException("Products in order was incompatible with products in database");
             }
-        }
+        }*/
 
         Order order = new Order();
         order.setProducts(products);
