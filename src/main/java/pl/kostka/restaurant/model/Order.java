@@ -1,6 +1,7 @@
 package pl.kostka.restaurant.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -8,6 +9,9 @@ import pl.kostka.restaurant.model.enums.OrderStatus;
 import pl.kostka.restaurant.model.enums.OrderType;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,10 +25,9 @@ public class Order {
     private Float totalPrice;
     private OrderType orderType;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
     private Restaurant restaurant;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -41,11 +44,13 @@ public class Order {
                     referencedColumnName = "id"))
     private List<Product> products;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumn(name = "delivery_address_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
     private Address deliveryAddress;
+
+    @CreationTimestamp
+    private Timestamp createDate;
 
     public Order() {
     }
@@ -120,5 +125,13 @@ public class Order {
 
     public void setDeliveryAddress(Address deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
+    }
+
+    public Timestamp getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Timestamp createDate) {
+        this.createDate = createDate;
     }
 }
